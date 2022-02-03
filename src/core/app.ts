@@ -1,14 +1,11 @@
 import { Server, createServer, IncomingMessage, ServerResponse } from "http";
-import { HTTP_METHODS, Middleware, Router } from "./index";
 import { Request, Response } from "./declarations";
+import { Middleware, Router } from "./index";
 import { createContext } from "./context";
+import { Route } from "./router/route";
+import parseURL from "parse-url";
 
-function processMiddleware(
-  middleware: Middleware,
-  req: Request,
-  res: Response,
-  result: any
-) {
+function processMiddleware(middleware: Middleware, req: Request, res: Response, result: any) {
   return new Promise((resolve) => {
     function next() {
       resolve(true);
@@ -18,45 +15,51 @@ function processMiddleware(
   });
 }
 
+export interface Routing extends Route {
+  handlers: Middleware[];
+}
+
 export class App {
-  private routes: Map<string, Middleware[]> = new Map();
+  private routes: Routing[] = [];
   server: Server;
 
   constructor() {
     this.server = createServer(async (request: IncomingMessage, response: ServerResponse) => {
-      const { url = "", method = "" } = request;
       let result = {};
-
-      const ctx = createContext(request, response);
-
-      const key = JSON.stringify({ path: url, method: method as HTTP_METHODS });
-      const items = this.routes.get(key);
       
-      if (!items || !items.length) {
-        return ctx.response.json(404, { name: "NotFound" });
+      const item = this.routes.find(route => {
+        request.url = parseURL(request.url as string).pathname;
+        return request.url?.match(route.regexp);
+      });
+
+      if (!item) {
+        return response.end(JSON.stringify({
+          name: "NotFound",
+          message: `The ${request.url} not found.`
+        }));
       }
 
-      for (let i = 0; i < items.length; i++) {
-        if (items.length - 1 === i) {
+      const ctx = createContext({ req: request, res: response, route: item });
+
+      for (let i = 0; i < item.handlers.length; i++) {
+        if (item.handlers.length - 1 === i) {
           function next() {
             ctx.response.json(200, ctx.result);
           }
-          return items[i]({ ...ctx, next });
+          return item.handlers[i]({ ...ctx, next });
         }
-        await processMiddleware(items[i], ctx.request, ctx.response, result);
+        await processMiddleware(item.handlers[i], ctx.request, ctx.response, result);
       }
     });
   }
 
   register(router: Router) {
-    router.routes.forEach(route => {
-      const { before, handler, after, path, method } = route;
-
+    const items = router.routes.map((route) => {
+      const { before, handler, after } = route;
       const handlers = [...before, handler, ...after];
-      const key = { path, method }
-
-      this.routes.set(JSON.stringify(key), handlers);
+      return { ...route, handlers } as Routing;
     });
+    this.routes.push(...items);
   }
 
   listen(port: number, listener: () => void): void {

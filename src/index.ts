@@ -1,15 +1,9 @@
-import { App, Router } from "./core/index";
+import { App } from "./core/index";
+import BookRoutes from "./books/book.routes";
 
 const app = new App();
 
-const router = new Router();
-
-router.get("/books", ({ result, next }) => {
-  result.fullname = "Ivan Zaldivar";
-  next();
-})
-
-app.register(router);
+app.register(BookRoutes);
 
 app.listen(3030, () => {
   console.log("App execute in port:3030");

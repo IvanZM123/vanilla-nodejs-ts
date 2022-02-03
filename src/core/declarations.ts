@@ -1,6 +1,13 @@
 import { IncomingMessage, ServerResponse } from "http";
 
-export interface Request extends IncomingMessage {}
+export interface Query {
+  [key: string]: any;
+}
+
+export interface Request extends IncomingMessage {
+  query?: Query;
+  params?: Query;
+}
 
 export interface Response extends ServerResponse {
   json: (status: number, message: any) => void;
@@ -10,6 +17,8 @@ export interface HttpRequestContext {
   request: Request;
   response: Response;
   result: any;
+  query?: Query;
+  params?: Query;
   next: () => void;
 }
 

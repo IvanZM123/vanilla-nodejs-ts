@@ -11,6 +11,11 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^17.0.14",
+    "@types/url-parse": "^1.4.7",
     "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "parse-url": "^5.0.7",
+    "path-to-regexp": "^6.2.0"
   }
 }
