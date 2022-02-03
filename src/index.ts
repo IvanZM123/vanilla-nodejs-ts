@@ -3,18 +3,18 @@ import { IncomingMessage, ServerResponse, createServer, Server } from "http";
 export interface HttpRequestContext {
   request: IncomingMessage
   response: ServerResponse;
+  result: any;
+  next: () => void;
 }
 
 export interface HandlerMiddleware {
   type: TypeMiddleware;
-  handle: (ctx: HttpRequestContext, next: NextFunction) => void;
+  handle: (ctx: HttpRequestContext) => void;
 }
 
 export type NextFunction = () => void;
 
-export type Middleware = (ctx: HttpRequestContext, next: NextFunction) => void | Promise<void>;
-
-export type HandlerRequest = (ctx: HttpRequestContext) => any;
+export type Middleware = (ctx: HttpRequestContext) => void | Promise<void>;
 
 export type TypeMiddleware = "before" | "after";
 
@@ -32,7 +32,7 @@ export class Route {
   constructor(
     public path: string,
     public method: HTTP_METHODS,
-    public handler: HandlerRequest
+    public handler: Middleware
   ) {}
 
   middleware(middleware: HandlerMiddleware) {
@@ -53,7 +53,7 @@ export class Router {
 
   constructor(public readonly path: string) {}
 
-  get(path: string, handler: HandlerRequest) {
+  get(path: string, handler: Middleware) {
     const fullpath = `${this.path}${path}`
 
     const route = new Route(fullpath, "GET", handler);
@@ -68,13 +68,14 @@ export class Router {
 }
 
 export class App {
-  private routes: Map<string, (Middleware | HandlerRequest)[]> = new Map();
+  private routes: Map<string, (Middleware)[]> = new Map();
   server: Server;
 
   constructor() {
     this.server = createServer(async (request: IncomingMessage, response: ServerResponse) => {
       const { url, method } = request;
-      
+      let result = {};
+
       const items = this.routes.get(JSON.stringify({ path: url as string, method: method as HTTP_METHODS }));
       
       if (!items || !items.length) {
@@ -82,32 +83,28 @@ export class App {
         return response.end(JSON.stringify({ name: "NotFound" }));
       }
 
-      if (!(items.length - 1)) {
-        const handler = items[0];
-        return handler({ request, response }, null as any);
-      }
-
       function processMiddleware(
         middleware: Middleware,
         req: IncomingMessage,
         res: ServerResponse
       ) {
-        if (middleware.name !== "handle") {
-          return new Promise((resolve) => resolve(false));
-        }
-
         return new Promise((resolve) => {
-          middleware({ request: req, response: res }, function () {
+          function next() {
             resolve(true);
-          });
+          }
+
+          middleware({ request: req, response: res, result, next });
         });
       }
 
-      for (let item of items) {
-        const cb = await processMiddleware(item, request, response);
-        if (!cb) {
-          return (item as any)({ request, response })
+      for (let i = 0; i < items.length; i++) {
+        if (items.length - 1 === i) {
+          function next() {
+            response.end(JSON.stringify(result));
+          }
+          return items[i]({ request, response, result, next });
         }
+        await processMiddleware(items[i], request, response);
       }
     });
   }
@@ -133,26 +130,42 @@ const app = new App();
 const bookRouter = new Router("/books");
 const pageRouter = new Router("/pages");
 
+class AuthMiddleware implements HandlerMiddleware {
+  type: TypeMiddleware = "before";
+
+  handle({ next }: HttpRequestContext) {
+    console.log("Im before middleware");
+    next()
+  }
+}
+
+class NotifyEmail implements HandlerMiddleware {
+  type: TypeMiddleware = "after";
+
+  handle ({ next }: HttpRequestContext) {
+    console.log("Send email");
+    next();
+  }
+}
+
 bookRouter
-  .get("", ({ request, response }) => {
-    response.end("My books");
+  .get("", ({ result, response, next }): any => {
+    // response.end(JSON.stringify({ name: "Books" }));
+    // response.writeHead(200, { "Content-Type": "" })
+    // response.end("<h1>Books</h1>")
+    result.firstName = "Ivan"
+    result.lastName = "Zaldivar"
+    console.log("Handler")
+    // response.writeHead(200, { "Content-Type": "text/html" })
+    // return response.end(`<h1>Hi ${result.firstName} ${result.lastName}</h1>`);
+    next();
   })
-  .middleware({ type: "before", handle: function ({}, next) {
-    console.log("1. Im one middleware")
-    next();
-  } })
-  .middleware({ type: "before", handle: function ({}, next) {
-    console.log("2. Im two middleware");
-    next();
-  } })
-  .middleware({ type: "before", handle: function ({}, next) {
-    console.log("3. Im three middleware");
-    next();
-  } });
+  .middleware(new AuthMiddleware())
+  .middleware(new NotifyEmail());
 
 pageRouter
-  .get("", ({ request, response }) => {
-    response.end("My pages");
+  .get("", ({ response }): any => {
+    return response.end(JSON.stringify({ name: "Pages" }));
   })
 
 app.register(bookRouter);
