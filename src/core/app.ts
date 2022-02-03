@@ -1,5 +1,22 @@
 import { Server, createServer, IncomingMessage, ServerResponse } from "http";
 import { HTTP_METHODS, Middleware, Router } from "./index";
+import { Request, Response } from "./declarations";
+import { createContext } from "./context";
+
+function processMiddleware(
+  middleware: Middleware,
+  req: Request,
+  res: Response,
+  result: any
+) {
+  return new Promise((resolve) => {
+    function next() {
+      resolve(true);
+    }
+
+    middleware({ request: req, response: res, result, next });
+  });
+}
 
 export class App {
   private routes: Map<string, Middleware[]> = new Map();
@@ -7,38 +24,26 @@ export class App {
 
   constructor() {
     this.server = createServer(async (request: IncomingMessage, response: ServerResponse) => {
-      const { url, method } = request;
+      const { url = "", method = "" } = request;
       let result = {};
 
-      const items = this.routes.get(JSON.stringify({ path: url as string, method: method as HTTP_METHODS }));
+      const ctx = createContext(request, response);
+
+      const key = JSON.stringify({ path: url, method: method as HTTP_METHODS });
+      const items = this.routes.get(key);
       
       if (!items || !items.length) {
-        response.writeHead(404, { "Content-Type": "application/json" })
-        return response.end(JSON.stringify({ name: "NotFound" }));
-      }
-
-      function processMiddleware(
-        middleware: Middleware,
-        req: IncomingMessage,
-        res: ServerResponse
-      ) {
-        return new Promise((resolve) => {
-          function next() {
-            resolve(true);
-          }
-
-          middleware({ request: req, response: res, result, next });
-        });
+        return ctx.response.json(404, { name: "NotFound" });
       }
 
       for (let i = 0; i < items.length; i++) {
         if (items.length - 1 === i) {
           function next() {
-            response.end(JSON.stringify(result));
+            ctx.response.json(200, ctx.result);
           }
-          return items[i]({ request, response, result, next });
+          return items[i]({ ...ctx, next });
         }
-        await processMiddleware(items[i], request, response);
+        await processMiddleware(items[i], ctx.request, ctx.response, result);
       }
     });
   }

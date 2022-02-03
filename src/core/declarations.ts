@@ -1,8 +1,14 @@
 import { IncomingMessage, ServerResponse } from "http";
 
+export interface Request extends IncomingMessage {}
+
+export interface Response extends ServerResponse {
+  json: (status: number, message: any) => void;
+}
+
 export interface HttpRequestContext {
-  request: IncomingMessage
-  response: ServerResponse;
+  request: Request;
+  response: Response;
   result: any;
   next: () => void;
 }

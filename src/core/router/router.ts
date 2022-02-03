@@ -1,17 +1,17 @@
+import { HttpRequestContext } from "../declarations";
 import { Middleware } from "../index";
 import { Route } from "./route";
 
-export class Router {
-  private items: Route[] = []
+export interface Controller {
+  list(ctx: HttpRequestContext): Promise<any>;
+}
 
-  constructor(public readonly path: string) {}
+export class Router {
+  private items: Route[] = [];
 
   get(path: string, handler: Middleware) {
-    const fullpath = `${this.path}${path}`
-
-    const route = new Route(fullpath, "GET", handler);
+    const route = new Route(path, "GET", handler);
     this.items.push(route);
-
     return route;
   }
 
