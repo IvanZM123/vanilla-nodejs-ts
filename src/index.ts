@@ -1,4 +1,6 @@
 import { App } from "./core/index";
+
+// Routes.
 import BookRoutes from "./books/book.routes";
 
 const app = new App();

@@ -1,8 +1,11 @@
 import { HttpRequestContext } from "../core";
 
 export class BookController {
-  async list({ query, next }: HttpRequestContext): Promise<void> {
-    console.log("Query: ", query);
-    next(null, { result: { message: "List of books" } });
+  async list({ next }: HttpRequestContext): Promise<void> {
+    next(null, { result: { message: "List Book Controller" } });
+  }
+
+  async get({ next }: HttpRequestContext): Promise<void> {
+    next(null, { result: { message: "Get Book Controller" } });
   }
 }
