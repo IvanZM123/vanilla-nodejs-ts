@@ -18,6 +18,9 @@
   "dependencies": {
     "parse-url": "^5.0.7",
     "path-to-regexp": "^6.2.0",
+    "reflect-metadata": "^0.1.13",
+    "sqlite3": "^5.0.2",
+    "typeorm": "^0.2.41",
     "uniqid": "^5.4.0"
   }
 }
