@@ -19,14 +19,14 @@ export interface HttpRequestContext {
   result: any;
   query?: Query;
   params?: Query;
-  next: () => void;
+  next: NextFunction;
 }
 
 export interface HandlerMiddleware {
   handle: (ctx: HttpRequestContext) => void;
 }
 
-export type NextFunction = () => void;
+export type NextFunction = (err: any, ctx: Partial<HttpRequestContext>) => void;
 
 export type Middleware = (ctx: HttpRequestContext) => void | Promise<void>;
 

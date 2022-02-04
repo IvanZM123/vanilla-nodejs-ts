@@ -1,17 +1,18 @@
 import { Server, createServer, IncomingMessage, ServerResponse } from "http";
-import { Request, Response } from "./declarations";
+import { HttpRequestContext } from "./declarations";
 import { Middleware, Router } from "./index";
 import { createContext } from "./context";
 import { Route } from "./router/route";
 import parseURL from "parse-url";
 
-function processMiddleware(middleware: Middleware, req: Request, res: Response, result: any) {
-  return new Promise((resolve) => {
-    function next() {
-      resolve(true);
+function processMiddleware(middleware: Middleware, context: HttpRequestContext): Promise<HttpRequestContext> {
+  return new Promise((resolve, reject) => {
+    function next(err: any, ctx: Partial<HttpRequestContext>) {
+      if (err) return reject(err);
+      resolve(ctx as HttpRequestContext);
     }
 
-    middleware({ request: req, response: res, result, next });
+    middleware({ ...context, next });
   });
 }
 
@@ -28,8 +29,8 @@ export class App {
       let result = {};
       
       const item = this.routes.find(route => {
-        request.url = parseURL(request.url as string).pathname;
-        return request.url?.match(route.regexp);
+        const url = parseURL(request.url as string).pathname;
+        return url.match(route.regexp);
       });
 
       if (!item) {
@@ -39,16 +40,17 @@ export class App {
         }));
       }
 
-      const ctx = createContext({ req: request, res: response, route: item });
+      let ctx = createContext({ req: request, res: response, route: item });
 
       for (let i = 0; i < item.handlers.length; i++) {
-        if (item.handlers.length - 1 === i) {
-          function next() {
-            ctx.response.json(200, ctx.result);
-          }
-          return item.handlers[i]({ ...ctx, next });
+        try {
+          const context = await processMiddleware(item.handlers[i], { ...ctx, result });
+          ctx = { ...ctx, ...context };
+          ctx.response.json(200, ctx.result);
+        } catch (error) {
+          ctx.response.json(404, error)
+          break;
         }
-        await processMiddleware(item.handlers[i], ctx.request, ctx.response, result);
       }
     });
   }
