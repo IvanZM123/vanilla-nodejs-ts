@@ -1,23 +1,13 @@
 import "reflect-metadata";
 
-import { createConnection } from "typeorm";
-import { Book } from "./books/book.model";
-
 import { App } from "./core";
+import "./db";
 
 // Routes.
 import BookRoutes from "./books/book.routes";
 import PageRoutes from "./pages/page.routes";
 
 const app = new App();
-
-createConnection({
-  type: "sqlite",
-  database: "/etc/todos/todo.db",
-  entities: [Book],
-  logging: true,
-  synchronize: true
-})
 
 app.register(BookRoutes);
 app.register(PageRoutes);
