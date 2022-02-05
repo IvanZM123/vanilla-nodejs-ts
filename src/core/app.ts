@@ -8,7 +8,7 @@ import parseURL from "parse-url";
 function middleware(func: any, data: HttpContext): Promise<HttpContext> {
   return new Promise((resolve, reject) => {
     function next(err: any, context: any) {
-      if (err) reject(err);
+      if (err) return reject(err);
       resolve(context);
     }
     func({ ...data, next });
@@ -37,7 +37,12 @@ export class App {
         }));
       }
 
-      let ctx = createContext({ req: request, res: response, route: item, result: {} });
+      let ctx = createContext({
+        req: request,
+        res: response,
+        route: item,
+        result: {}
+      });
 
       for (let i = 0; i < item.handlers.length; i++) {
         try {
@@ -51,8 +56,7 @@ export class App {
           const context = await middleware(handler, ctx);
           ctx = { ...ctx, ...context };
         } catch (error) {
-          console.error(error);
-          response.end("Mal");
+          ctx.response.status(400).json({});
         }
       }
     });
