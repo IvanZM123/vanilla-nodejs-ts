@@ -1,21 +1,14 @@
-import { HttpContext, Response, Request } from "./index";
 import { IncomingMessage, ServerResponse } from "http";
 import { Route } from "./router/route";
 import { match } from "path-to-regexp";
 import parseURL from "parse-url";
 
+import { HttpContext, Request } from "./index";
+import { Response } from "./router/response";
+
 export interface ContextCreator<T> {
   handler: T;
   layer: Route;
-}
-
-function createResponse({ handler }: ContextCreator<Response>): Response {
-  handler.json = function (status: number, message: any) {
-    handler.writeHead(status, { "Content-Type": "application/json" });
-    handler.end(JSON.stringify(message));
-  }
-
-  return handler;
 }
 
 function createRequest({ handler, layer }: ContextCreator<Request>): Request {
@@ -35,16 +28,14 @@ export interface ContextOptions {
   req: IncomingMessage;
   res: ServerResponse;
   route: Route;
+  [key: string]: any;
 }
 
 export function createContext({ req, res, route }: ContextOptions): HttpContext {
-  let result: any = {};
-
-  const response = createResponse({ handler: res as Response, layer: route });
   const request = createRequest({ handler: req as Request, layer: route });
+  const response = new Response(req, res);
 
   return {
-    result,
     request,
     response,
     query: request.query,

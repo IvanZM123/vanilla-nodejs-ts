@@ -2,21 +2,16 @@ import { Server, createServer, IncomingMessage, ServerResponse } from "http";
 import { HttpContext } from "./declarations";
 import { Middleware, Router } from "./index";
 import { createContext } from "./context";
-import { BadRequest } from "http-errors";
 import { Route } from "./router/route";
 import parseURL from "parse-url";
 
-function processMiddleware(
-  middleware: Middleware,
-  context: HttpContext
-): Promise<HttpContext> {
+function middleware(func: any, data: HttpContext): Promise<HttpContext> {
   return new Promise((resolve, reject) => {
-    function next(err: any, ctx: Partial<HttpContext> | null) {
-      if (err || !ctx) return reject(err);
-      resolve(ctx as HttpContext);
+    function next(err: any, context: any) {
+      if (err) reject(err);
+      resolve(context);
     }
-
-    middleware({ ...context, next });
+    func({ ...data, next });
   });
 }
 
@@ -30,8 +25,6 @@ export class App {
 
   constructor() {
     this.server = createServer(async (request: IncomingMessage, response: ServerResponse) => {
-      let result = {};
-      
       const item = this.routes.find(route => {
         const url = parseURL(request.url as string).pathname;
         return url.match(route.regexp);
@@ -44,17 +37,22 @@ export class App {
         }));
       }
 
-      let ctx = createContext({ req: request, res: response, route: item });
+      let ctx = createContext({ req: request, res: response, route: item, result: {} });
 
       for (let i = 0; i < item.handlers.length; i++) {
         try {
-          const context = await processMiddleware(item.handlers[i], { ...ctx, result });
+          const handler = item.handlers[i];
+
+          if (item.handlers.length - 1 === i) {
+            const context = await middleware(handler, ctx);
+            ctx.response.status(200).json(context.result);
+          }
+
+          const context = await middleware(handler, ctx);
           ctx = { ...ctx, ...context };
-          return ctx.response.json(200, ctx.result);
-        } catch (error: any) {
-          const { status, message, name } = error || new BadRequest();
-          ctx.response.json(status, { ...error, name, message });
-          break;
+        } catch (error) {
+          console.error(error);
+          response.end("Mal");
         }
       }
     });

@@ -1,4 +1,6 @@
-import { IncomingMessage, ServerResponse } from "http";
+import { IncomingMessage } from "http";
+
+import { Response } from "./router/response";
 
 export interface Query {
   [key: string]: any;
@@ -22,10 +24,6 @@ export type Id = string | number;
 export interface Request extends IncomingMessage {
   query?: Query;
   params?: Query;
-}
-
-export interface Response extends ServerResponse {
-  json: (status: number, message: any) => void;
 }
 
 export interface HttpContext {
