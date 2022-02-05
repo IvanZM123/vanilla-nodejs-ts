@@ -1,9 +1,9 @@
 {
   "type": "sqlite",
-  "database": "/etc/todos/todo.db",
+  "database": "/etc/todos/sqlite.db",
   "entities": [
     "dist/api/books/book.model.js",
-    "dist/api/books/page.model.js"
+    "dist/api/pages/page.model.js"
   ],
   "migrations": ["dist/migrations/**/*.js"],
   "logging": true,

@@ -1,16 +1,16 @@
-import { ControllerMethods, HttpContext } from "../../core";
+import { ControllerMethods, HttpContext, RepositoryMethods } from "../../core";
 import { Page } from "./page.model";
 
-const page: Page = {
-  id: "1",
-  bookId: "1",
-  body: "# Filesrocket\n\n Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat.\n\nIn congue. Etiam justo. Etiam pretium iaculis justo.\n\nIn hac habitasse platea dictumst. Etiam faucibus cursus urna. Ut tellus.\n\nNulla ut erat id mauris vulputate elementum. Nullam varius. Nulla facilisi.",
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-}
-
 export class PageController implements Partial<ControllerMethods> {
+  constructor(private readonly repository: RepositoryMethods<Page>) {}
+
+  async list({ params = {}, next }: HttpContext): Promise<void> {
+    const { bookId = "" } = params;
+    const pages = await this.repository.list({ book: bookId });
+    next(null, { result: pages });
+  }
+
   async get({ next }: HttpContext): Promise<void> {
-    next(null, { result: page });
+    next(null, { result: { message: "Get one page" } });
   }
 }
