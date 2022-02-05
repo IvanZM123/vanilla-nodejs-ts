@@ -10,7 +10,9 @@ export class PageController implements Partial<ControllerMethods> {
     next(null, { result: pages });
   }
 
-  async get({ next }: HttpContext): Promise<void> {
-    next(null, { result: { message: "Get one page" } });
+  async get({ params, next }: HttpContext): Promise<void> {
+    const { pageId = "" } = params || {};
+    const page = await this.repository.get(pageId);
+    next(null, { result: page });
   }
 }
