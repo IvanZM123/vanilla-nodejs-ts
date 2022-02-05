@@ -1,4 +1,4 @@
-import { ControllerMethods, HttpContext, RepositoryMethods } from "../core";
+import { ControllerMethods, HttpContext, RepositoryMethods } from "../../core";
 import { Book } from "./book.model";
 
 export class BookController implements Partial<ControllerMethods> {

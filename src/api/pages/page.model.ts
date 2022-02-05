@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Book } from "../books/book.model";
 
 @Entity()
 export class Page {
@@ -7,6 +8,9 @@ export class Page {
 
   @Column({ length: 300 })
   body!: string;
+
+  @OneToMany(type => Book, book => book.id)
+  bookId!: string;
 
   @CreateDateColumn()
   createdAt!: string;

@@ -1,4 +1,4 @@
-import { Router } from "../core";
+import { Router } from "../../core";
 
 import { ConvertMiddleware } from "./middlewares/convert.middleware";
 import { PageController } from "./page.controller";

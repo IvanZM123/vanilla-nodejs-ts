@@ -1,7 +1,7 @@
 import { getRepository } from "typeorm";
 import { NotFound } from "http-errors";
 
-import { Id, Query, RepositoryMethods } from "../core";
+import { Id, Query, RepositoryMethods } from "../../core";
 import { Book } from "./book.model";
 
 export class BookRepository implements RepositoryMethods<Book> {

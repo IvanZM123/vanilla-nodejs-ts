@@ -1,6 +1,6 @@
 import { BadRequest } from "http-errors";
 
-import { HandlerMiddleware, HttpContext } from "../../core";
+import { HandlerMiddleware, HttpContext } from "../../../core";
 
 import { Converter } from "../helpers/converter";
 import { HtmlStrategy } from "../helpers/strategies/html.strategy";
