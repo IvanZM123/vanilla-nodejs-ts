@@ -1,0 +1,11 @@
+{
+  "type": "sqlite",
+  "database": "/etc/todos/todo.db",
+  "entities": [
+    "dist/api/books/book.model.js",
+    "dist/api/books/page.model.js"
+  ],
+  "migrations": ["dist/migrations/**/*.js"],
+  "logging": true,
+  "synchronize": true
+}

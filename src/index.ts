@@ -1,13 +1,14 @@
 import "reflect-metadata";
+import { createConnection } from "typeorm";
 
 import { App } from "./core";
-import "./db";
 
 // Routes.
 import BookRoutes from "./api/books/book.routes";
 import PageRoutes from "./api/pages/page.routes";
 
 const app = new App();
+createConnection();
 
 app.register(BookRoutes);
 app.register(PageRoutes);
