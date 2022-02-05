@@ -1,7 +1,7 @@
-import { HttpContext, RepositoryMethods } from "../core";
+import { ControllerMethods, HttpContext, RepositoryMethods } from "../core";
 import { Book } from "./book.model";
 
-export class BookController {
+export class BookController implements Partial<ControllerMethods> {
   constructor(private repository: RepositoryMethods<Book>) {}
 
   async list({ next, query }: HttpContext): Promise<void> {
@@ -13,7 +13,12 @@ export class BookController {
     }
   }
 
-  async get({ next }: HttpContext): Promise<void> {
-    next(null, { result: { message: "Get Book Controller" } });
+  async get({ params, next }: HttpContext): Promise<void> {
+    try {
+      const result = await this.repository.get(params?.id);
+      next(null, { result });
+    } catch (error) {
+      next(error, null);
+    }
   }
 }

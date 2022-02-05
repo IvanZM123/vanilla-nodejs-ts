@@ -2,6 +2,7 @@ import { Server, createServer, IncomingMessage, ServerResponse } from "http";
 import { HttpContext } from "./declarations";
 import { Middleware, Router } from "./index";
 import { createContext } from "./context";
+import { BadRequest } from "http-errors";
 import { Route } from "./router/route";
 import parseURL from "parse-url";
 
@@ -50,8 +51,9 @@ export class App {
           const context = await processMiddleware(item.handlers[i], { ...ctx, result });
           ctx = { ...ctx, ...context };
           return ctx.response.json(200, ctx.result);
-        } catch (error) {
-          ctx.response.json(404, { name: "Mal" })
+        } catch (error: any) {
+          const { status, message, name } = error || new BadRequest();
+          ctx.response.json(status, { ...error, name, message });
           break;
         }
       }
