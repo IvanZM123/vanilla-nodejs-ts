@@ -1,9 +1,9 @@
-import { HttpRequestContext } from "../declarations";
+import { HttpContext } from "../declarations";
 import { Middleware } from "../index";
 import { Route } from "./route";
 
 export interface Controller {
-  list(ctx: HttpRequestContext): Promise<any>;
+  list(ctx: HttpContext): Promise<any>;
 }
 
 export class Router {

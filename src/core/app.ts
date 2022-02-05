@@ -1,15 +1,18 @@
 import { Server, createServer, IncomingMessage, ServerResponse } from "http";
-import { HttpRequestContext } from "./declarations";
+import { HttpContext } from "./declarations";
 import { Middleware, Router } from "./index";
 import { createContext } from "./context";
 import { Route } from "./router/route";
 import parseURL from "parse-url";
 
-function processMiddleware(middleware: Middleware, context: HttpRequestContext): Promise<HttpRequestContext> {
+function processMiddleware(
+  middleware: Middleware,
+  context: HttpContext
+): Promise<HttpContext> {
   return new Promise((resolve, reject) => {
-    function next(err: any, ctx: Partial<HttpRequestContext>) {
-      if (err) return reject(err);
-      resolve(ctx as HttpRequestContext);
+    function next(err: any, ctx: Partial<HttpContext> | null) {
+      if (err || !ctx) return reject(err);
+      resolve(ctx as HttpContext);
     }
 
     middleware({ ...context, next });
@@ -46,9 +49,9 @@ export class App {
         try {
           const context = await processMiddleware(item.handlers[i], { ...ctx, result });
           ctx = { ...ctx, ...context };
-          ctx.response.json(200, ctx.result);
+          return ctx.response.json(200, ctx.result);
         } catch (error) {
-          ctx.response.json(404, error)
+          ctx.response.json(404, { name: "Mal" })
           break;
         }
       }

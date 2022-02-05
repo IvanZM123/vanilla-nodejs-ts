@@ -1,4 +1,4 @@
-import { HttpRequestContext, Response, Request } from "./index";
+import { HttpContext, Response, Request } from "./index";
 import { IncomingMessage, ServerResponse } from "http";
 import { Route } from "./router/route";
 import { match } from "path-to-regexp";
@@ -37,7 +37,7 @@ export interface ContextOptions {
   route: Route;
 }
 
-export function createContext({ req, res, route }: ContextOptions): HttpRequestContext {
+export function createContext({ req, res, route }: ContextOptions): HttpContext {
   let result: any = {};
 
   const response = createResponse({ handler: res as Response, layer: route });
@@ -49,5 +49,5 @@ export function createContext({ req, res, route }: ContextOptions): HttpRequestC
     response,
     query: request.query,
     params: request.params
-  } as HttpRequestContext;
+  } as HttpContext;
 }

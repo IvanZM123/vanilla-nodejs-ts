@@ -1,23 +1,19 @@
-import { HttpRequestContext } from "../core";
+import { HttpContext, RepositoryMethods } from "../core";
+import { Book } from "./book.model";
 
 export class BookController {
-  constructor(private repository: any) {}
+  constructor(private repository: RepositoryMethods<Book>) {}
 
-  async list({ next, response }: HttpRequestContext): Promise<void> {
+  async list({ next, query }: HttpContext): Promise<void> {
     try {
-      const data = await this.repository.create({
-        title: "El Principito",
-        author: "Ivan Zaldivar",
-        category: "Fantasia"
-      });
+      const data = await this.repository.list(query);
       next(null, { result: data });
     } catch (error) {
-      console.error(error);
-      response.json(404, { message: "Un error" });
+      next(error, {});
     }
   }
 
-  async get({ next }: HttpRequestContext): Promise<void> {
+  async get({ next }: HttpContext): Promise<void> {
     next(null, { result: { message: "Get Book Controller" } });
   }
 }
