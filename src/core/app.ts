@@ -1,4 +1,5 @@
 import { Server, createServer, IncomingMessage, ServerResponse } from "http";
+import { InternalServerError } from "http-errors";
 import { HttpContext } from "./declarations";
 import { Middleware, Router } from "./index";
 import { createContext } from "./context";
@@ -55,8 +56,9 @@ export class App {
 
           const context = await middleware(handler, ctx);
           ctx = { ...ctx, ...context };
-        } catch (error) {
-          ctx.response.status(400).json({});
+        } catch (error: any) {
+          const { status, name, message } = error || new InternalServerError();
+          ctx.response.status(status).json({ name, message });
         }
       }
     });

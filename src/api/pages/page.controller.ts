@@ -5,14 +5,22 @@ export class PageController implements Partial<ControllerMethods> {
   constructor(private readonly repository: RepositoryMethods<Page>) {}
 
   async list({ params = {}, next }: HttpContext): Promise<void> {
-    const { bookId = "" } = params;
-    const pages = await this.repository.list({ book: bookId });
-    next(null, { result: pages });
+    try {
+      const { bookId = "" } = params;
+      const pages = await this.repository.list({ book: bookId });
+      next(null, { result: pages });
+    } catch (error) {
+      next(error, null);
+    }
   }
 
   async get({ params, next }: HttpContext): Promise<void> {
-    const { pageId = "" } = params || {};
-    const page = await this.repository.get(pageId);
-    next(null, { result: page });
+    try {
+      const { pageId = "", bookId = "" } = params || {};
+      const page = await this.repository.get(pageId, { book: bookId });
+      next(null, { result: page });
+    } catch (error) {
+      next(error, null);
+    }
   }
 }
