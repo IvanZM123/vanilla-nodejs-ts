@@ -3,8 +3,11 @@ import { Book } from "../books/book.model";
 
 @Entity()
 export class Page {
-  @PrimaryGeneratedColumn("increment")
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
+
+  @Column({ type: "integer" })
+  pageNumber!: number;
 
   @Column({ length: 300 })
   body!: string;

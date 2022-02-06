@@ -1,25 +1,9 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+import { generateRandomNumber, generateRandomText } from "../utils/random";
 
 import { Book } from "../api/books/book.model";
 import { Page } from "../api/pages/page.model";
-
-const BODY = `
-# Condimentum suscipit nulla et egestas class eget velit iaculis ligula veh
-
-Lorem ipsum dolor sit amet consectetur adipiscing elit fermentum urna, dapibus mattis arcu ligula taciti rutrum tortor risus, torquent ultricies ut sodales metus malesuada commodo nulla. Conubia diam per mattis potenti inceptos porta aenean nec, condimentum quam vulputate pellentesque ridiculus lobortis posuere, dignissim litora pharetra elementum facilisis magnis cras. 
-
-Elementum platea praesent sodales nascetur imperdiet dictum curae nam commodo vivamus, himenaeos a lobortis porta cum rutrum libero mi per, tellus bibendum vel leo venenatis interdum habitant condimentum tortor. 
-
-## Ad luctus diam nam bibendum odio frin
-
-- Eros gravida dictum ad bibendum, dui fusce eu.
-
-- Ac bibendum sapien venenatis, ligula congue.
-
-- Porttitor vehicula tempor class egestas, penatibus laoreet condimentum.
-
-- Dictum nec facilisi conubia donec, felis pellentesque.
-`;
 
 export class SeedPage1644088850535 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -28,12 +12,26 @@ export class SeedPage1644088850535 implements MigrationInterface {
 
     const books = await bookRepository.find();
 
-    await Promise.all(
-      books.map((book) => {
-        const entity = pageRepository.create({ book, body: BODY });
-        return pageRepository.save(entity);
-      })
-    );
+    const pages: Partial<Page>[] = books.map((book) => {
+      const randomNumber: number = generateRandomNumber(1, 10);
+      const entities: Partial<Page>[] = [];
+
+      for (let i = 0; i < randomNumber; i++) {
+        const body: string = generateRandomText();
+        
+        const entity = pageRepository.create({
+          book,
+          pageNumber: i + 1,
+          body
+        });
+
+        entities.push(entity);
+      }
+
+      return entities;
+    }).flat();
+
+    await pageRepository.save(pages);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
