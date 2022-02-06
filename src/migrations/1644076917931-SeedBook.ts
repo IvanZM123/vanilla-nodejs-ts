@@ -58,7 +58,9 @@ export class SeedBook1644076917931 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     const repository = queryRunner.connection.getRepository(Book);
 
-    const entities: Partial<Book>[] = books.map(repository.create);
+    const entities: Partial<Book>[] = books.map(
+      (book) => repository.create(book)
+    );
 
     await repository.save(entities);
   }
