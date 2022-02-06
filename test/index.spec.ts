@@ -1,8 +1,14 @@
-import { getConnection } from "typeorm";
-// import supertest from "supertest";
+import { getConnection, createConnection } from "typeorm";
+import supertest from "supertest";
 import app from "../src/index";
 
-// const request = supertest(app);
+const request = supertest(app);
+
+beforeAll(() => {
+  createConnection()
+    .then(console.log)
+    .catch(console.error);
+});
 
 afterAll(() => {
   getConnection()
@@ -13,7 +19,9 @@ afterAll(() => {
 });
 
 describe("GET /books", () => {
-  test("Get all books", () => {
-    expect(2 + 2).toBe(4);
+  test("Get all books", async () => {
+    await request
+      .get("/books")
+      .expect(200);
   });
 });
