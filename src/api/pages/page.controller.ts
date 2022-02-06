@@ -1,4 +1,6 @@
 import { ControllerMethods, HttpContext, RepositoryMethods } from "../../core";
+import { NotFound } from "http-errors";
+
 import { Page } from "./page.model";
 
 export class PageController implements Partial<ControllerMethods> {
@@ -14,11 +16,20 @@ export class PageController implements Partial<ControllerMethods> {
     }
   }
 
-  async get({ params, next }: HttpContext): Promise<void> {
+  async get({ params = {}, next }: HttpContext): Promise<void> {
     try {
-      const { pageId = "", bookId = "" } = params || {};
-      const page = await this.repository.get(pageId, { book: bookId });
-      next(null, { result: page });
+      const { pageId = "", bookId = "" } = params;
+      
+      const pages = await this.repository.list({
+        book: bookId,
+        pageNumber: pageId
+      });
+
+      if (!pages.length) {
+        return next(new NotFound("The page not exist"), null);
+      }
+
+      next(null, { result: pages[0] });
     } catch (error) {
       next(error, null);
     }
