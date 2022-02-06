@@ -7,12 +7,19 @@ import { App } from "./core";
 import BookRoutes from "./api/books/book.routes";
 import PageRoutes from "./api/pages/page.routes";
 
+// Initialize app.
 const app = new App();
+
+// Connect database.
 createConnection();
 
+// Register routes.
 app.register(BookRoutes);
 app.register(PageRoutes);
 
+// Start the server.
 app.listen(3030, () => {
   console.log("App execute in port:3030");
 });
+
+export default app;
