@@ -7,5 +7,5 @@
   ],
   "migrations": ["dist/migrations/**/*.js"],
   "logging": true,
-  "synchronize": true
+  "syncronize": true
 }

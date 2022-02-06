@@ -59,7 +59,7 @@ export class App extends Server {
     return new Promise((resolve) => {
       function next(err: any, context: any) {
         if (err || !context) {
-          const { status, name, message } = err || new InternalServerError();
+          const { status = 500, name, message } = err || new InternalServerError();
           return http.response.status(status).json({ name, message });
         };
         resolve(context);
