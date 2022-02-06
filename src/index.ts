@@ -18,8 +18,6 @@ app.register(BookRoutes);
 app.register(PageRoutes);
 
 // Start the server.
-const server = app.listen(3030, () => {
+app.listen(3030, () => {
   console.log("App execute in port:3030");
 });
-
-export default server;
