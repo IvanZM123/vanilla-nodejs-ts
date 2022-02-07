@@ -1,6 +1,6 @@
-import { loremIpsum, ILoremIpsumParams } from "lorem-ipsum";
+import { loremIpsum, ILoremIpsumParams } from 'lorem-ipsum'
 
-export function generateRandomText(): string {
+export function generateRandomText (): string {
   const options: ILoremIpsumParams = {
     count: 15,
     paragraphLowerBound: 3,
@@ -8,12 +8,11 @@ export function generateRandomText(): string {
     random: Math.random,
     sentenceLowerBound: 3,
     sentenceUpperBound: 50
-  };
+  }
 
-  return loremIpsum(options).split(".").join("\n\n");
+  return loremIpsum(options).split('.').join('\n\n')
 }
 
-export function generateRandomNumber(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min)) + min;
+export function generateRandomNumber (min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min)) + min
 }
-

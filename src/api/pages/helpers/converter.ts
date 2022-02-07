@@ -3,7 +3,7 @@ export interface ConverterStrategy {
 }
 
 export class Converter {
-  async convertFile(content: any, strategy: ConverterStrategy) {
-    return strategy.convert(content);
+  async convertFile (content: any, strategy: ConverterStrategy) {
+    return strategy.convert(content)
   }
 }

@@ -1,25 +1,10 @@
-import { IncomingMessage } from "http";
+import { IncomingMessage } from 'http'
 
-import { Response } from "./router/response";
+import { Response } from './router/response'
 
 export interface Query {
   [key: string]: any;
 }
-
-export type NextFunction = (err: any, ctx: Partial<HttpContext> | null) => void;
-
-export type Middleware = (ctx: HttpContext) => void | Promise<void>;
-
-export type TypeMiddleware = "before" | "after";
-
-export type HTTP_METHODS = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-
-export interface MiddlewareMap {
-  before: Middleware[];
-  after: Middleware[];
-}
-
-export type Id = string | number;
 
 export interface Request extends IncomingMessage {
   query?: Query;
@@ -32,8 +17,23 @@ export interface HttpContext {
   result: any;
   query?: Query;
   params?: Query;
-  next: NextFunction;
+  next: (err: any, ctx: Partial<HttpContext> | null) => void;
 }
+
+export type Middleware = (ctx: HttpContext) => void | Promise<void>;
+
+export type TypeMiddleware = 'before' | 'after';
+
+export type HTTP_METHODS = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+export interface MiddlewareMap {
+  before: Middleware[];
+  after: Middleware[];
+}
+
+export type Id = string | number;
+
+export type NextFunction = (err: any, ctx: Partial<HttpContext> | null) => void;
 
 export interface HandlerMiddleware {
   handle(ctx: HttpContext): Promise<void>;

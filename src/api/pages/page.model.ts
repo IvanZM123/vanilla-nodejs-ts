@@ -1,12 +1,12 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Book } from "../books/book.model";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Book } from '../books/book.model'
 
 @Entity()
 export class Page {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: "integer" })
+  @Column({ type: 'integer' })
   pageNumber!: number;
 
   @Column({ length: 300 })

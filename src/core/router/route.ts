@@ -3,8 +3,8 @@ import {
   HTTP_METHODS,
   Middleware,
   TypeMiddleware
-} from "../index";
-import { pathToRegexp } from "path-to-regexp";
+} from '../index'
+import { pathToRegexp } from 'path-to-regexp'
 
 export class Route {
   readonly before: Middleware[] = []
@@ -12,18 +12,18 @@ export class Route {
   readonly regexp: RegExp;
   readonly keys = [];
 
-  constructor(
+  constructor (
     public path: string,
     public method: HTTP_METHODS,
     public handler: Middleware
   ) {
-    this.regexp = pathToRegexp(path, this.keys);
+    this.regexp = pathToRegexp(path, this.keys)
   }
 
-  middleware(type: TypeMiddleware, middleware: HandlerMiddleware) {
-    type === "before"
+  middleware (type: TypeMiddleware, middleware: HandlerMiddleware) {
+    type === 'before'
       ? this.before.push(middleware.handle)
-      : this.after.push(middleware.handle);
-    return this;
+      : this.after.push(middleware.handle)
+    return this
   }
 }

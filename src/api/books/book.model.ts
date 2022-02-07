@@ -1,9 +1,9 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
-import { Page } from "../pages/page.model";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { Page } from '../pages/page.model'
 
 @Entity()
 export class Book {
-  @PrimaryGeneratedColumn("increment")
+  @PrimaryGeneratedColumn('increment')
   id!: number;
 
   @Column({ length: 50 })
